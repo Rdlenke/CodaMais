@@ -116,9 +116,15 @@
 </div>
 
 
-<div>
+<div style="width: 100%; overflow: hidden;">
   {% if deletable_topic %}
-  <a class="btn btn-outline-success" data-toggle="modal" data-target="#delete-confirmation_topic" href="javascript:void(0)">Deletar Tópico</a> {% endif %}
+  <a class="btn btn-outline-success" data-toggle="modal" data-target="#delete-confirmation_topic" href="javascript:void(0)">Deletar Tópico</a> 
+  {% endif %}
+  
+  <div style="width: 85%; float: right;">
+    <a class="btn btn-outline-success" data-toggle="modal" data-target="#lock-topic" href="javascript:void(0)">Trancar Tópico</a> 
+  </div>  
+
 </div>
 
 <script>
@@ -160,6 +166,24 @@ tinyMCE.get('#id_description').setContent('<span>some</span> html');
       <div class="modal-footer">
         <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Cancelar</button>
         <a href="" class="btn btn-danger btn-sm" id="actualDeleteBtn">Deletar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="lock-topic">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Confirmar Trancamento</h4>
+      </div>
+      <div class="modal-body">
+        Você deseja realmente trancar seu tópico? Essa ação é irreversível.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <a href="" class="btn btn-primary">Trancar</a>
       </div>
     </div>
   </div>
