@@ -42,7 +42,7 @@ def show_topic(request, id):
         # TODO(Roger) Create structure to alert the user that the topic doesn't exist.
         return redirect('list_all_topics')
 
-    redirect_answer = answer_topic(user, topic, form)
+    redirect_answer = _answer_topic_(user, topic, form)
 
     if redirect_answer is not None:
         return HttpResponseRedirect(redirect_answer)
@@ -113,7 +113,7 @@ def delete_topic(request, id):
     try:
         topic = Topic.objects.get(id=id)  # Topic object, from Topic model.
     except ObjectDoesNotExist:
-        logger.exception("Topic is not exists.")
+        logger.exception("Topic don't exist.")
         # TODO(Roger) Create structure to alert the user that the topic doesn't exist.
         return redirect('list_all_topics')
 
@@ -134,23 +134,27 @@ def delete_topic(request, id):
 
 
 # The user answers the topic accessed.
-def answer_topic(user, topic, form):
+def _answer_topic_(user, topic, form):
     assert user is not None, "User not logged in."
-    assert topic is not None, "Topic is not exists."
+    assert topic is not None, "Topic don't exist."
 
     redirect_answer = None
-    if form.is_valid():
-        answer_description = form.cleaned_data.get(constants.ANSWER_DESCRIPTION_NAME)
-        answer = Answer()
-        answer.creates_answer(user, topic, answer_description)
+    
+    if topic.locked is not True:
+        if form.is_valid():
+            answer_description = form.cleaned_data.get(constants.ANSWER_DESCRIPTION_NAME)
+            answer = Answer()
+            answer.creates_answer(user, topic, answer_description)
 
-        # Reset form.
-        redirect_answer = "/forum/topics/" + str(topic.id)
+            # Reset form.
+            redirect_answer = "/forum/topics/" + str(topic.id)
 
-        logger.debug("Create answer form was valid.")
+            logger.debug("Create answer form was valid.")
+        else:
+            logger.warning("Invalid answer form.")
+            # Nothing to do
     else:
-        logger.warning("Invalid answer form.")
-        # Nothing to do
+        logger.debug("Topic is locked.")
 
     return redirect_answer
 
@@ -210,3 +214,29 @@ def show_delete_answer_button(answers, topic, current_user_username):
         logger.info("Is deletable? " + str(is_deletable))
 
     return deletable_answers
+
+
+@login_required(login_url='/')
+def lock_topic(request, id):
+    try:
+        topic = Topic.objects.get(id=id)  # Topic object, from Topic model.
+    except ObjectDoesNotExist:
+        logger.exception("Topic don't exist.")
+        # TODO(Roger) Create structure to alert the user that the topic doesn't exist.
+        return redirect('list_all_topics')
+
+    user = request.user  # User object, from user model. Is the current online user.
+
+    assert topic.author is not None, constants.DELETE_TOPIC_ASSERT
+
+    if user.username == topic.author.username:
+        logger.debug("Locking topic")
+        topic.locked = True
+        topic.save()
+
+        return redirect('list_all_topics')
+    else:
+        logger.info("User can't lock topic.")
+
+        # TODO(Roger) Create structure to alert the user that the topic isn't his.
+        return redirect('list_all_topics')

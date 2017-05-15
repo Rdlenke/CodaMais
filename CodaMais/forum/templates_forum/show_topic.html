@@ -49,49 +49,50 @@
   </div>
 </div>
 
-
+  {% if topic.locked is not True %}
 <div class="card">
   <div class="header" id=header>
     <h4 class="title">{{quantity_answer}} Respostas</h4><br>
   </div>
-  {% for answer, delete_answer in zipped_data %}
-  <div class="card">
-  <div class="table-responsive">
-    <table class="table table-striped">
-      <tr>
-        <td id = column>
-          <img src="{{answer.user.user_image.url}}" width="100px" height="100px"></img>
-        </td>
-        <td id = column2>
-          {{answer.description|safe}}
-        </td>
-      </tr>
-      <tr>
-        <td id = column>
-          <b>
-            {{answer.user.username}}
-          </b>
-        </td>
-        <td id = column2 style = "text-align:right;">
-          {{answer.date_answer}}
-        </td>
-      </tr>
-      {% if delete_answer == True %}
-      <tr>
-        <td id = column2 td colspan="2">
-          <a class="btn btn-danger btn-sm"
-          data-toggle="modal"
-          data-target="#delete_confirmation_answer"
-          data-id="{{answer.id}}"
-          data-url="{% url 'delete_answer' answer.id %}">Deletar Resposta </a>
-        </td>
-      </tr>
-      {% endif %}
-    </table>
+
+    {% for answer, delete_answer in zipped_data %}
+    <div class="card">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <tr>
+          <td id = column>
+            <img src="{{answer.user.user_image.url}}" width="100px" height="100px"></img>
+          </td>
+          <td id = column2>
+            {{answer.description|safe}}
+          </td>
+        </tr>
+        <tr>
+          <td id = column>
+            <b>
+              {{answer.user.username}}
+            </b>
+          </td>
+          <td id = column2 style = "text-align:right;">
+            {{answer.date_answer}}
+          </td>
+        </tr>
+        {% if delete_answer == True %}
+        <tr>
+          <td id = column2 td colspan="2">
+            <a class="btn btn-danger btn-sm"
+            data-toggle="modal"
+            data-target="#delete_confirmation_answer"
+            data-id="{{answer.id}}"
+            data-url="{% url 'delete_answer' answer.id %}">Deletar Resposta </a>
+          </td>
+        </tr>
+        {% endif %}
+      </table>
+    </div>
   </div>
-</div>
-{% endfor %}
-</div>
+  {% endfor %}
+  </div>
 
 
 
@@ -114,17 +115,19 @@
     </form>
   </div>
 </div>
-
+{% else %}
+O tópico está tracado.
+{% endif %}
 
 <div style="width: 100%; overflow: hidden;">
   {% if deletable_topic %}
   <a class="btn btn-outline-success" data-toggle="modal" data-target="#delete-confirmation_topic" href="javascript:void(0)">Deletar Tópico</a> 
   {% endif %}
-  
+  {% if topic.locked is not True %}
   <div style="width: 85%; float: right;">
     <a class="btn btn-outline-success" data-toggle="modal" data-target="#lock-topic" href="javascript:void(0)">Trancar Tópico</a> 
   </div>  
-
+  {% endif %}
 </div>
 
 <script>
@@ -171,6 +174,7 @@ tinyMCE.get('#id_description').setContent('<span>some</span> html');
   </div>
 </div>
 
+
 <div class="modal fade" id="lock-topic">
   <div class="modal-dialog modal-sm" role="document">
     <div class="modal-content">
@@ -188,5 +192,4 @@ tinyMCE.get('#id_description').setContent('<span>some</span> html');
     </div>
   </div>
 </div>
-
 {% endblock %}
