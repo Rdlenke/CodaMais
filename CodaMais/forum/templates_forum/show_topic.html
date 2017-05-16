@@ -49,7 +49,7 @@
   </div>
 </div>
 
-  {% if topic.locked is not True %}
+  {% if topic.locked is False %}
 <div class="card">
   <div class="header" id=header>
     <h4 class="title">{{quantity_answer}} Respostas</h4><br>
@@ -123,7 +123,7 @@ O tópico está tracado.
   {% if deletable_topic %}
   <a class="btn btn-outline-success" data-toggle="modal" data-target="#delete-confirmation_topic" href="javascript:void(0)">Deletar Tópico</a> 
   {% endif %}
-  {% if topic.locked is not True %}
+  {% if lockable_topic is True %}
   <div style="width: 85%; float: right;">
     <a class="btn btn-outline-success" data-toggle="modal" data-target="#lock-topic" href="javascript:void(0)">Trancar Tópico</a> 
   </div>  
@@ -187,7 +187,7 @@ tinyMCE.get('#id_description').setContent('<span>some</span> html');
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-        <a href="" class="btn btn-primary">Trancar</a>
+        <a href="{% url 'lock_topic' topic.id %}" class="btn btn-primary">Trancar</a>
       </div>
     </div>
   </div>

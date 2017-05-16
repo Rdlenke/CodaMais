@@ -19,3 +19,6 @@ DELETE_ANSWER_ASSERT = "Answer does not have an author."
 
 # ANSWER DESCRIPTION
 ANSWER_DESCRIPTION_NAME = 'description'
+
+# DEFAULT LOGGER name
+DEFAULT_LOGGER = "default"

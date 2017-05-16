@@ -18,7 +18,7 @@ from . import constants
 
 # Required to access the information log.
 logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(constants.DEFAULT_LOGGER)
 
 
 def list_all_topics(request):
@@ -54,11 +54,13 @@ def show_topic(request, id):
     quantity_answer = len(answers)
     deletable_topic = show_delete_topic_button(topic.author, user.username)
     deletable_answers = show_delete_answer_button(answers, topic, user.username)
+    lockable_topic = show_lock_topic_button(topic, user)
     zipped_data = zip(answers, deletable_answers)
 
     return render(request, 'show_topic.html', {
         'topic': topic,
         'deletable_topic': deletable_topic,
+        'lockable_topic': lockable_topic,
         'form': form,
         'quantity_answer': quantity_answer,
         'zipped_data': zipped_data
@@ -78,6 +80,24 @@ def show_delete_topic_button(topic_author, current_user_username):
 
     logger.debug("Topic page is deletable? " + str(deletable_topic))
     return deletable_topic
+
+
+def show_lock_topic_button(topic, current_user):
+    lockable_topic = False  # Variable to define if user will see a button to lock a topic.
+
+    # Check if logged user is visiting his own topic page.
+    if topic.locked is False:
+        if topic.author.username == current_user.username or current_user.is_staff is True:
+            logger.debug("Topic page should be lockable")
+            lockable_topic = True
+        else:
+            logger.debug("Topic page shouldn't be lockable.")
+            # Nothing to do.
+    else:
+        logger.debug("Topic is already locked.")
+
+    logger.info("Topic page is lockable? " + str(lockable_topic))
+    return lockable_topic
 
 
 @login_required(login_url='/')
@@ -139,7 +159,7 @@ def _answer_topic_(user, topic, form):
     assert topic is not None, "Topic don't exist."
 
     redirect_answer = None
-    
+
     if topic.locked is not True:
         if form.is_valid():
             answer_description = form.cleaned_data.get(constants.ANSWER_DESCRIPTION_NAME)
@@ -229,12 +249,12 @@ def lock_topic(request, id):
 
     assert topic.author is not None, constants.DELETE_TOPIC_ASSERT
 
-    if user.username == topic.author.username:
+    if user.username == topic.author.username or user.is_staff is True:
         logger.debug("Locking topic")
         topic.locked = True
         topic.save()
 
-        return redirect('list_all_topics')
+        return redirect('/forum/topics/' + str(topic.id))
     else:
         logger.info("User can't lock topic.")
 
